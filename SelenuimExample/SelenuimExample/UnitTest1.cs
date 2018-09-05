@@ -18,6 +18,8 @@ namespace SeleniumExamples
         public void Start()
         {
             driver = new ChromeDriver();
+            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
+
             wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
         }
 
@@ -26,6 +28,15 @@ namespace SeleniumExamples
         {
             driver.Url = "http://www.google.com/";
             driver.FindElement(By.Name("q")).SendKeys("webdriver");
+        }
+
+        [Test]
+        public void Login()
+        {
+            driver.Url = "http://localhost/litecart/admin/";
+            driver.FindElement(By.Name("username")).SendKeys("admin");
+            driver.FindElement(By.Name("password")).SendKeys("admin");
+            driver.FindElement(By.Name("login")).Click();
         }
 
         [TearDown]
