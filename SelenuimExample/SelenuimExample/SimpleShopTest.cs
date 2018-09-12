@@ -57,6 +57,19 @@ namespace SelenuimExample
             }
         }
 
+        [Test]
+        public void StikersTest()
+        {
+            driver.Url = "http://localhost/litecart/";
+
+            var stikers = driver.FindElements(By.XPath(".//div[img[contains(@alt, 'Duck')]]"));
+
+            foreach (var stiker in stikers)
+            {
+                Assert.IsTrue(IsElementSingle(stiker, By.CssSelector("div.sticker")));
+            }
+        }
+
         [TearDown]
         public void Finish()
         {
@@ -88,6 +101,11 @@ namespace SelenuimExample
             {
                 return false;
             }
+        }
+
+        bool IsElementSingle(IWebElement element, By locator)
+        {
+            return element.FindElements(locator).Count() == 1;
         }
     }
 }
