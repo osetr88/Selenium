@@ -6,7 +6,7 @@ using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 
-namespace SeleniumExamples
+namespace SeleniumExample
 {
     [TestFixture]
     public class MyFirstTest
