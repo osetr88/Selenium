@@ -19,8 +19,6 @@ namespace SelenuimExample
         {
             driver = new ChromeDriver();
             driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
-
-            //wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
         }
 
         [Test]
@@ -70,6 +68,75 @@ namespace SelenuimExample
             }
         }
 
+        [Test]
+        public void CountryTest()
+        {
+            // login
+            driver.Url = "http://localhost/litecart/admin/";
+            driver.FindElement(By.Name("username")).SendKeys("admin");
+            driver.FindElement(By.Name("password")).SendKeys("admin");
+            driver.FindElement(By.Name("login")).Click();
+
+            // go to country page
+            driver.Url = "http://localhost/litecart/admin/?app=countries&doc=countries";
+
+            // get list of countries
+            var countries = driver.FindElements(By.XPath(".//tr[@class=\"row\"]/td[5]/a")).ToList();
+            var sortedCountries = countries.OrderBy(a => a.Text).ToList();
+
+            Assert.IsTrue(IsSorted(countries, sortedCountries, "text"));
+
+            // get rows of table
+            var tableRows = driver.FindElements(By.XPath(".//tr[@class=\"row\"]"));
+            List<string> zones = new List<string>();
+
+            foreach (var row in tableRows)
+            {
+                string timeZoneCount = row.FindElement(By.XPath("./td[6]")).Text;
+                if (timeZoneCount != "0")
+                {
+                    var link = row.FindElement(By.XPath("./td[5]/a"))
+                        .GetAttribute("href");
+                    zones.Add(link);
+                }
+            }
+
+            foreach (string zone in zones)
+            {
+                driver.Url = zone;
+                var timeZones = driver.FindElements(By.XPath(".//tr/td[3]/input")).ToList();
+                var sortedTimeZones = timeZones.OrderBy(a => a.GetAttribute("textContent")).ToList();
+
+                Assert.IsTrue(IsSorted(timeZones, sortedTimeZones, "textContent"));
+            }
+
+        }
+
+        [Test]
+        public void GeoZoneTest()
+        {
+            // login
+            driver.Url = "http://localhost/litecart/admin/";
+            driver.FindElement(By.Name("username")).SendKeys("admin");
+            driver.FindElement(By.Name("password")).SendKeys("admin");
+            driver.FindElement(By.Name("login")).Click();
+
+            // go to country page
+            driver.Url = "http://localhost/litecart/admin/?app=geo_zones&doc=geo_zones";
+
+            var table = driver.FindElement(By.CssSelector("table.dataTable"));
+            var countries = GetListOfLinks(table, By.XPath(".//tr[@class=\"row\"]/td[3]/a"));
+
+            foreach (string county in countries)
+            {
+                driver.Url = county;
+                var geoZones = driver.FindElements(By.XPath(".//tr/td[3]/select")).ToList();
+                var sortedGeoZones = geoZones.OrderBy(a => a.Text).ToList();
+
+                Assert.IsTrue(IsSorted(geoZones, sortedGeoZones, "text"));
+            }
+        }
+
         [TearDown]
         public void Finish()
         {
@@ -101,11 +168,23 @@ namespace SelenuimExample
             {
                 return false;
             }
-        }
+        }        
 
         bool IsElementSingle(IWebElement element, By locator)
         {
             return element.FindElements(locator).Count() == 1;
+        }
+
+        bool IsSorted(List<IWebElement> list, List<IWebElement> sortedList, string attribute)
+        {
+            bool isSorted = true;
+            for (int i = 0; i < list.Count(); i++)
+            {
+                if (list[i].GetAttribute(attribute) != sortedList[i].GetAttribute(attribute))
+                    isSorted = false;
+            }
+
+            return isSorted;
         }
     }
 }
