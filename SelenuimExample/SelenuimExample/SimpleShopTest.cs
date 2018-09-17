@@ -12,7 +12,7 @@ namespace SelenuimExample
     class SimpleShopTest
     {
         private IWebDriver driver;
-        private WebDriverWait wait;
+        //private WebDriverWait wait;
 
         [SetUp]
         public void Start()

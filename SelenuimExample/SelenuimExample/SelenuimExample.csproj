@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DifferentDrivers.cs" />
+    <Compile Include="ProductTest.cs" />
     <Compile Include="SimpleShopTest.cs" />
     <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
