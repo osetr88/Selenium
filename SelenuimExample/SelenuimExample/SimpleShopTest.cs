@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
@@ -174,6 +175,73 @@ namespace SelenuimExample
             driver.FindElement(By.Name("email")).SendKeys(email);
             driver.FindElement(By.Name("password")).SendKeys("123qwe");
             driver.FindElement(By.Name("login")).Click();
+        }
+
+        [Test]
+        public void AddProductTest()
+        {
+            // login
+            driver.Url = "http://localhost/litecart/admin/";
+            driver.FindElement(By.Name("username")).SendKeys("admin");
+            driver.FindElement(By.Name("password")).SendKeys("admin");
+            driver.FindElement(By.Name("login")).Click();
+
+            // go to Catalog page
+            driver.FindElement(By.XPath(".//span[.='Catalog']")).Click();
+            driver.FindElement(By.XPath(".//a[.=' Add New Product']")).Click();
+
+            // General
+            driver.FindElement(By.XPath(".//label[.=' Enabled']")).Click();
+            driver.FindElement(By.XPath(".//input[@name='name[en]']")).SendKeys("Super Duck");
+            driver.FindElement(By.CssSelector("input[name=code]")).SendKeys("RD047");
+            driver.FindElement(By.XPath(".//input[@data-name='Rubber Ducks']")).Click();
+            driver.FindElement(By.XPath(".//input[@data-name='Subcategory']")).Click();
+
+            var defaultCategory = new SelectElement(driver.FindElement(By.Name("default_category_id")));
+            defaultCategory.SelectByText("Rubber Ducks");
+
+            driver.FindElement(By.XPath(".//input[@name='product_groups[]' and @value='1-3']")).Click();
+            driver.FindElement(By.Name("quantity")).SendKeys("20");
+
+            var location = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            var path = Path.GetDirectoryName(location);
+            string filePath = path.Replace("bin\\Debug","images\\SuperDuck.jpg");
+            driver.FindElement(By.XPath(".//input[@name='new_images[]']")).SendKeys(filePath);
+
+            driver.FindElement(By.Name("date_valid_from")).SendKeys("19.09.2018");
+            driver.FindElement(By.Name("date_valid_to")).SendKeys("19.09.2019");
+
+            // Information
+            driver.FindElement(By.XPath(".//a[.='Information']")).Click(); 
+
+            var manufacturer = new SelectElement(driver.FindElement(By.Name("manufacturer_id")));
+            manufacturer.SelectByValue("1");
+
+            driver.FindElement(By.Name("keywords")).SendKeys("Duck");
+            driver.FindElement(By.Name("short_description[en]")).SendKeys("Super Duck");
+            driver.FindElement(By.Name("description[en]")).SendKeys("Really Super Duck");
+            driver.FindElement(By.Name("head_title[en]")).SendKeys("Super Duck");
+            driver.FindElement(By.Name("meta_description[en]")).SendKeys("Meta description");
+
+            // Prices
+            driver.FindElement(By.XPath(".//a[.='Prices']")).Click();
+
+            driver.FindElement(By.Name("purchase_price")).SendKeys("40");
+
+            var currency = new SelectElement(driver.FindElement(By.Name("purchase_price_currency_code")));
+            currency.SelectByValue("USD");
+
+            driver.FindElement(By.Name("prices[USD]")).SendKeys("40");
+            driver.FindElement(By.Name("prices[EUR]")).SendKeys("35");
+
+            // Save new product
+            driver.FindElement(By.Name("save")).Click();
+
+            // Check
+            driver.Url = "http://localhost/litecart/admin/?app=catalog&doc=catalog";
+            driver.FindElement(By.XPath(".//a[.='Rubber Ducks']")).Click();
+
+            Assert.IsTrue(IsElementExist(By.XPath(".//a[.='Super Duck']")));
         }
 
         [TearDown]
