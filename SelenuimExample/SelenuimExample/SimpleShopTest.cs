@@ -244,6 +244,52 @@ namespace SelenuimExample
             Assert.IsTrue(IsElementExist(By.XPath(".//a[.='Super Duck']")));
         }
 
+        [Test]
+        public void CartTest()
+        {
+            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            // login
+            driver.Url = "http://localhost/litecart/en/";
+
+            // add products to cart
+            for (int i = 0; i < 3; i++)
+            {
+                driver.FindElement(By.CssSelector("div#box-most-popular li")).Click();
+                if (IsElementExist(By.XPath(".//select[@name='options[Size]']")))
+                {
+                    var el = driver.FindElement(By.XPath(".//select[@name='options[Size]']"));
+                    var select = new SelectElement(el);
+
+                    select.SelectByValue("Small");
+                }
+
+                var cartCount = driver.FindElement(By.CssSelector("div#cart span.quantity"));
+                int count = Convert.ToInt32(cartCount.Text);
+
+                driver.FindElement(By.Name("add_cart_product")).Click();
+                count++;
+
+                wait.Until(ExpectedConditions.TextToBePresentInElement(cartCount, count.ToString()));
+                driver.Url = "http://localhost/litecart/en/";
+            }
+
+            driver.FindElement(By.XPath(".//a[.='Checkout »']")).Click();
+            var rows = driver.FindElements(By.CssSelector(".dataTable td.item"));
+
+            for (int i = 0; i < rows.Count(); i++)
+            {
+                if (IsElementExist(By.CssSelector("ul.shortcuts li")))
+                    driver.FindElement(By.CssSelector("ul.shortcuts li")).Click();
+
+                driver.FindElement(By.Name("remove_cart_item")).Click();
+
+                var deleteRow = driver.FindElements(By.CssSelector(".dataTable td.item"));
+                wait.Until(ExpectedConditions.StalenessOf(deleteRow[deleteRow.Count - 1]));
+            }
+
+        }
+
         [TearDown]
         public void Finish()
         {
