@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using NUnit.Framework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
@@ -12,7 +13,8 @@ namespace SelenuimExample
     class SimpleShopTest
     {
         private IWebDriver driver;
-        //private WebDriverWait wait;
+        private WebDriverWait wait;
+        
 
         [SetUp]
         public void Start()
@@ -137,6 +139,43 @@ namespace SelenuimExample
             }
         }
 
+        [Test]
+        public void UserRegistrationTest()
+        {
+            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+            driver.Url = "http://localhost/litecart/en/";
+            driver.FindElement(By.XPath(".//a[.='New customers click here']")).Click();
+
+            // user registration
+            driver.FindElement(By.Name("firstname")).SendKeys("Alex");
+            driver.FindElement(By.Name("lastname")).SendKeys("Ovechkin");
+            driver.FindElement(By.Name("address1")).SendKeys("Elm Street");
+            driver.FindElement(By.Name("postcode")).SendKeys("75448");
+            driver.FindElement(By.Name("city")).SendKeys("Washington");
+
+            var country = new SelectElement(driver.FindElement(By.Name("country_code")));
+            country.SelectByValue("US");
+
+            IWebElement zone = wait.Until(ExpectedConditions.ElementIsVisible(By.CssSelector("select[name=zone_code]")));
+            SelectElement selectZone = new SelectElement(zone);
+            selectZone.SelectByValue("WA");
+
+            var email = GetMail(7);
+            driver.FindElement(By.Name("email")).SendKeys(email);
+            driver.FindElement(By.Name("phone")).SendKeys("88005553535");
+            driver.FindElement(By.Name("password")).SendKeys("123qwe");
+            driver.FindElement(By.Name("confirmed_password")).SendKeys("123qwe");
+            driver.FindElement(By.Name("create_account")).Click();
+
+            // user logout
+            driver.FindElement(By.XPath(".//a[.='Logout']")).Click();
+
+            // user login
+            driver.FindElement(By.Name("email")).SendKeys(email);
+            driver.FindElement(By.Name("password")).SendKeys("123qwe");
+            driver.FindElement(By.Name("login")).Click();
+        }
+
         [TearDown]
         public void Finish()
         {
@@ -185,6 +224,18 @@ namespace SelenuimExample
             }
 
             return isSorted;
+        }
+
+        string GetMail(int length)
+        {
+            Random random = new Random();
+            StringBuilder sb = new StringBuilder(length - 1);
+            for (int i = 0; i < length; i++)
+            {
+                var letter = (char) random.Next(97, 122);
+                sb.Append(letter);
+            }
+            return sb + "@mail.ru";
         }
     }
 }
