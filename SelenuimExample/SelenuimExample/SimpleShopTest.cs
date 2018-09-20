@@ -20,7 +20,9 @@ namespace SelenuimExample
         [SetUp]
         public void Start()
         {
-            driver = new ChromeDriver();
+            ChromeOptions options = new ChromeOptions();
+            options.SetLoggingPreference(LogType.Browser, LogLevel.All);
+            driver = new ChromeDriver(options);
             driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
         }
 
@@ -326,6 +328,30 @@ namespace SelenuimExample
             }
         }
 
+        [Test]
+        public void LogTest()
+        {
+            // login
+            driver.Url = "http://localhost/litecart/admin/";
+            driver.FindElement(By.Name("username")).SendKeys("admin");
+            driver.FindElement(By.Name("password")).SendKeys("admin");
+            driver.FindElement(By.Name("login")).Click();
+
+            // go to products page
+            driver.Url = "http://localhost/litecart/admin/?app=catalog&doc=catalog&category_id=1";
+
+            var links = GetListOfLinks(By.XPath(".//a[contains(text(), 'Duck')]"));
+
+            foreach (string link in links)
+            {
+                driver.Navigate().GoToUrl(link);
+                foreach (LogEntry l in driver.Manage().Logs.GetLog("browser"))
+                {
+                    Console.WriteLine(l);
+                }
+            }
+        }
+
         [TearDown]
         public void Finish()
         {
@@ -337,6 +363,19 @@ namespace SelenuimExample
         {
             List<string> result = new List<string>();
             var links = list.FindElements(locator);            
+
+            foreach (var link in links)
+            {
+                result.Add(link.GetAttribute("href"));
+            }
+
+            return result;
+        }
+
+        List<string> GetListOfLinks(By locator)
+        {
+            List<string> result = new List<string>();
+            var links = driver.FindElements(locator);
 
             foreach (var link in links)
             {
