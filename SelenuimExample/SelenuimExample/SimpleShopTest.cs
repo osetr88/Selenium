@@ -290,6 +290,42 @@ namespace SelenuimExample
 
         }
 
+        [Test]
+        public void WindowsHandleTest()
+        {
+            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            // login
+            driver.Url = "http://localhost/litecart/admin/";
+            driver.FindElement(By.Name("username")).SendKeys("admin");
+            driver.FindElement(By.Name("password")).SendKeys("admin");
+            driver.FindElement(By.Name("login")).Click();
+
+            // go to countries page
+            driver.Url = "http://localhost/litecart/admin/?app=countries&doc=countries";
+
+            // add new country
+            driver.FindElement(By.XPath(".//a[.=' Add New Country']")).Click();
+
+            string originalWindow = driver.CurrentWindowHandle;
+            var oldWindows = driver.WindowHandles.ToList();
+
+            var links = driver.FindElements(By.CssSelector("i.fa-external-link"));
+
+            foreach (var link in links)
+            {
+                link.Click();
+
+                var newWindows = driver.WindowHandles.ToList();
+                string window = newWindows.Except(oldWindows).First();
+
+                driver.SwitchTo().Window(window);
+                driver.Close();
+                driver.SwitchTo().Window(originalWindow);
+                wait.Until(ExpectedConditions.ElementIsVisible(By.CssSelector("i.fa-external-link")));
+            }
+        }
+
         [TearDown]
         public void Finish()
         {
@@ -351,5 +387,6 @@ namespace SelenuimExample
             }
             return sb + "@mail.ru";
         }
+
     }
 }
