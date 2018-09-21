@@ -66,7 +66,7 @@ namespace SelenuimExample
         {
             driver.Url = "http://localhost/litecart/";
 
-            var stikers = driver.FindElements(By.XPath(".//div[img[contains(@alt, 'Duck')]]"));
+            var stikers = driver.FindElements(By.XPath("li.product"));
 
             foreach (var stiker in stikers)
             {
