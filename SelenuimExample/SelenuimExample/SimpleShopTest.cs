@@ -7,6 +7,7 @@ using NUnit.Framework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
+using SelenuimExample.PageObject;
 
 namespace SelenuimExample
 {
@@ -14,15 +15,15 @@ namespace SelenuimExample
     class SimpleShopTest
     {
         private IWebDriver driver;
-        private WebDriverWait wait;
-        
+        private WebDriverWait wait;        
 
         [SetUp]
         public void Start()
         {
-            ChromeOptions options = new ChromeOptions();
-            options.SetLoggingPreference(LogType.Browser, LogLevel.All);
-            driver = new ChromeDriver(options);
+            //ChromeOptions options = new ChromeOptions();
+            //options.SetLoggingPreference(LogType.Browser, LogLevel.All);
+            //driver = new ChromeDriver(options);
+            driver = new ChromeDriver();
             driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
         }
 
@@ -290,6 +291,15 @@ namespace SelenuimExample
                 wait.Until(ExpectedConditions.StalenessOf(deleteRow[deleteRow.Count - 1]));
             }
 
+        }
+
+        [Test]
+        public void PageObjectTest()
+        {
+            Application app = new Application();
+            app.AddProductsToCart(3);
+            app.RemoveProductsFromCart();
+            app.Quit();
         }
 
         [Test]
